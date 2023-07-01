@@ -56,8 +56,8 @@ template<typename T>
 void get_initial_parameter_single(parameters_t& parameters, const T& parameter)
 {
 #if TAPERED
-    const auto mg = mg_score(static_cast<int32_t>(parameter));
-    const auto eg = eg_score(static_cast<int32_t>(parameter));
+    const double mg = mg_score(static_cast<int32_t>(parameter));
+    const double eg = eg_score(static_cast<int32_t>(parameter));
     const pair_t pair = { mg, eg };
     parameters.push_back(pair);
 #else
@@ -68,8 +68,7 @@ void get_initial_parameter_single(parameters_t& parameters, const T& parameter)
 template<typename T>
 void get_initial_parameter_array(parameters_t& parameters, const T& parameter, const int size)
 {
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         get_initial_parameter_single(parameters, parameter[i]);
     }
 }

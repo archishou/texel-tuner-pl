@@ -1,14 +1,12 @@
-#ifndef TOY_BASE_H
-#define TOY_BASE_H 1
-
+#pragma once
 #include <array>
 #include <string>
 #include <stdexcept>
+#include <sstream>
 
 namespace Toy
 {
-    enum class Pieces
-    {
+    enum class Pieces {
         None,
         WhitePawn,
         WhiteKnight,
@@ -24,16 +22,13 @@ namespace Toy
         BlackKing
     };
 
-    struct Position
-    {
+    struct Position {
         std::array<Pieces, 64> pieces{ Pieces::None };
         bool white_to_move = true;
     };
 
-    static Pieces char_to_piece(const char ch)
-    {
-        switch (ch)
-        {
+    static Pieces char_to_piece(const char ch) {
+        switch (ch) {
         case 'P': return Pieces::WhitePawn;
         case 'N': return Pieces::WhiteKnight;
         case 'B': return Pieces::WhiteBishop;
@@ -50,29 +45,22 @@ namespace Toy
         }
     }
 
-    static void parse_fen(const std::string& fen, Position& position)
-    {
+    static void parse_fen(const std::string& fen, Position& position) {
         int flipped_square = 0;
-        for (char ch : fen)
-        {
-            if (ch == ' ')
-            {
+        for (char ch : fen) {
+            if (ch == ' ') {
                 break;
             }
 
-            if (ch == '/')
-            {
+            if (ch == '/') {
                 continue;
             }
 
-            if (ch >= '1' && ch <= '8')
-            {
+            if (ch >= '1' && ch <= '8') {
                 flipped_square += ch - 0x30;
             }
-            else
-            {
-                if (flipped_square >= 64)
-                {
+            else {
+                if (flipped_square >= 64) {
                     throw std::runtime_error("FEN parsing ran off-board");
                 }
 
@@ -81,13 +69,38 @@ namespace Toy
             }
         }
 
-        if (flipped_square != 64)
-        {
+        if (flipped_square != 64) {
             throw std::runtime_error("FEN parsing didn't complete board");
         }
 
         position.white_to_move = fen.find('w') != std::string::npos;
     }
+
+	static void print_parameter(std::stringstream& ss, const pair_t parameter) {
+		ss << "S(" << parameter[static_cast<int32_t>(PhaseStages::Midgame)] << ", " << parameter[static_cast<int32_t>(PhaseStages::Endgame)] << ")";
+	}
+
+	static void print_single(std::stringstream& ss, const parameters_t& parameters, int& index, const std::string& name) {
+		ss << "constexpr int " << name << " = ";
+		print_parameter(ss, parameters[index]);
+		ss << ";" << std::endl;
+		index++;
+	}
+
+	static void print_array(std::stringstream& ss, const parameters_t& parameters, int& index, const std::string& name, int count) {
+		ss << "constexpr int " << name << "[] = {";
+		for (auto i = 0; i < count; i++)
+		{
+			print_parameter(ss, parameters[index]);
+			index++;
+
+			if (i != count - 1)
+			{
+				ss << ", ";
+			}
+		}
+		ss << "};" << std::endl;
+	}
+
 }
 
-#endif // !TOY_BASE_H
